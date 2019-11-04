@@ -38,6 +38,8 @@ RUN curl -L https://raw.githubusercontent.com/yyuu/pyenv-installer/master/bin/py
     && echo "\nexport PATH=\"\$HOME/.pyenv/bin:\$PATH\"\neval \"\$(pyenv init -)\"\neval \"\$(pyenv virtualenv-init -)\"" >> ~/.zshrc \
     && v=3.7.4;wget http://npm.taobao.org/mirrors/python/$v/Python-$v.tar.xz -P ~/.pyenv/cache/ \
     && ~/.pyenv/bin/pyenv install $v && ~/.pyenv/bin/pyenv global $v
+    # Create .so file
+    # && CONFIGURE_OPTS=--enable-shared ~/.pyenv/bin/pyenv install $v && ~/.pyenv/bin/pyenv global $v
 
 # pip resources
 RUN mkdir ~/.pip && cp /tmp/Linux-configs/pip.config ~/.pip
