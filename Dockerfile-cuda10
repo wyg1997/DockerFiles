@@ -48,7 +48,9 @@ RUN /tmp/pyenv_install.sh \
 RUN mkdir ~/.pip && cp /tmp/Linux-configs/pip.config ~/.pip
 
 # install vim-plus
-RUN git clone https://github.com/wyg1997/vimplus.git ~/.vimplus && cd ~/.vimplus && ./install_root.sh
+RUN git clone https://github.com/wyg1997/vimplus.git ~/.vimplus && cd ~/.vimplus \
+    && echo "\nlet g:ycm_server_python_interpreter = '/root/.pyenv/versions/3.7.4/bin/python3.7'" >> .vimrc \
+    && ./install_root.sh
 
 # sshd
 RUN mkdir /var/run/sshd && echo 'root:screencast' | chpasswd
@@ -60,7 +62,9 @@ RUN echo "export VISIBLE=now" >> /etc/profile
 CMD ["/usr/sbin/sshd", "-D"]
 
 # remove temp files
-RUN rm -rf /tmp/*
+RUN rm -rf /tmp/* \
+ && apt-get clean \
+ && rm -rf /var/lib/apt/lists/*
 
 # open port
 EXPOSE 22 8888 8887 8886
