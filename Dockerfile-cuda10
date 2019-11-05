@@ -17,8 +17,15 @@ RUN apt-get update \
  && apt-get install -y git zsh curl tmux vim wget build-essential libbz2-dev \
                        libssl-dev libreadline-dev libsqlite3-dev tk-dev \
                        libpng-dev libfreetype6-dev libffi-dev openssh-server \
+                       locales \
  && apt-get clean \
  && rm -rf /var/lib/apt/lists/*
+
+# set language
+RUN export LANGUAGE=en_US.UTF-8 && \
+    export LANG=en_US.UTF-8 && \
+    export LC_ALL=en_US.UTF-8 && \
+    locale-gen en_US.UTF-8
 
 # download config files from git
 RUN cd /tmp && git clone https://github.com/wyg1997/Linux-configs.git
