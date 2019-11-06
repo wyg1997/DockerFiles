@@ -55,7 +55,8 @@ RUN mkdir ~/.pip && cp /tmp/Linux-configs/pip.config ~/.pip
 # install vim-plus
 RUN git clone https://github.com/wyg1997/vimplus.git ~/.vimplus && cd ~/.vimplus \
     && echo "\nlet g:ycm_server_python_interpreter = '/root/.pyenv/versions/3.7.4/bin/python3.7'" >> .vimrc \
-    && ./install_root.sh
+    && ./install_root.sh \
+    && ~/.pyenv/versions/3.7.4/bin/python3 ~/.vim/plugged/YouCompleteMe/install.py
 
 # sshd
 RUN mkdir /var/run/sshd && echo 'root:screencast' | chpasswd
