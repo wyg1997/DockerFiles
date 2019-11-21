@@ -7,6 +7,10 @@
 - [x] sshd
 - [x] vim-plus
 - [x] zsh & oh-my-zsh
+  - [x] zsh-autosuggestions
+  - [x] zsh-syntax-highlighting
+  - [x] z
+  - [x] extractor
 - [x] pyenv & python3.7.4
 
 ### TODO
