@@ -38,6 +38,8 @@ RUN cd ~ && /tmp/oh-my-zsh_install.sh \
     && cp /tmp/Linux-configs/bullet-train.zsh-theme ~/.oh-my-zsh/themes/
 # zsh-autosuggestions
 RUN git clone git://github.com/zsh-users/zsh-autosuggestions ~/.oh-my-zsh/plugins/zsh-autosuggestions
+# zsh-syntax-highlighting
+RUN git clone https://github.com/zsh-users/zsh-syntax-highlighting.git ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-syntax-highlighting
 
 # set shell to zsh
 RUN cp /tmp/Linux-configs/.zshrc ~
