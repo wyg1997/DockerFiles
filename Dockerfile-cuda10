@@ -32,6 +32,7 @@ RUN cd /tmp && git clone https://github.com/wyg1997/Linux-configs.git
 
 # tmux
 RUN cp /tmp/Linux-configs/.tmux.conf ~
+RUN cp /tmp/Linux-configs/.tmux.conf.local ~
 
 # install and set oh-my-zsh
 RUN cd ~ && /tmp/oh-my-zsh_install.sh \
