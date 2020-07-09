@@ -30,9 +30,10 @@ RUN export LANGUAGE=en_US.UTF-8 && \
 # download config files from git
 RUN cd /tmp && git clone https://github.com/wyg1997/Linux-configs.git
 
-# tmux
+# tmux and tmux-resurrect
 RUN cp /tmp/Linux-configs/.tmux.conf ~
 RUN cp /tmp/Linux-configs/.tmux.conf.local ~
+RUN git clone https://github.com/tmux-plugins/tmux-resurrect /tmp/tmux-resurrect
 
 # install and set oh-my-zsh
 RUN cd ~ && /tmp/oh-my-zsh_install.sh \
