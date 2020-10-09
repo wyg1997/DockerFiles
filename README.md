@@ -16,7 +16,7 @@
 ### Build
 
 ```sh
-docker -t cuda10:1.0 -f ./Dockerfile-cuda10 .
+docker build -t cuda10:1.0 -f ./Dockerfile-cuda10 .
 ```
 
 如果到`apt-get update`卡住，可能是网络问题，可以使用host模式构建:
