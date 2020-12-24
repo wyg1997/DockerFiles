@@ -1,4 +1,4 @@
-ARG CUDA="10.0"
+ARG CUDA="10.2"
 ARG CUDNN="7"
 
 FROM nvidia/cuda:${CUDA}-cudnn${CUDNN}-devel-ubuntu18.04
@@ -14,18 +14,24 @@ ENV DEBIAN_FRONTEND=noninteractive
 
 # install packages
 RUN apt-get update \
- && apt-get install -y git zsh curl tmux vim wget build-essential libbz2-dev \
+ && apt-get install -y sudo git zsh curl tmux wget build-essential libbz2-dev \
                        libssl-dev libreadline-dev libsqlite3-dev tk-dev \
                        libpng-dev libfreetype6-dev libffi-dev openssh-server \
-                       locales busybox \
+                       locales busybox software-properties-common \
  && apt-get clean \
  && rm -rf /var/lib/apt/lists/*
+
+# create user
+RUN adduser --gecos '' --disabled-password ubuntu
+RUN echo "ubuntu ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers.d/nopasswd
+USER ubuntu
+WORKDIR /home/ubuntu
 
 # set language
 RUN export LANGUAGE=en_US.UTF-8 && \
     export LANG=en_US.UTF-8 && \
     export LC_ALL=en_US.UTF-8 && \
-    locale-gen en_US.UTF-8
+    sudo locale-gen en_US.UTF-8
 
 # download config files from git
 RUN cd /tmp && git clone https://github.com/wyg1997/Linux-configs.git
@@ -33,7 +39,7 @@ RUN cd /tmp && git clone https://github.com/wyg1997/Linux-configs.git
 # tmux and tmux-resurrect
 RUN cp /tmp/Linux-configs/.tmux.conf ~
 RUN cp /tmp/Linux-configs/.tmux.conf.local ~
-RUN git clone https://github.com/tmux-plugins/tmux-resurrect /tmp/tmux-resurrect
+RUN mkdir -p ~/.config && git clone https://github.com/tmux-plugins/tmux-resurrect ~/.config/tmux-resurrect
 
 # install and set oh-my-zsh
 RUN cd ~ && /tmp/oh-my-zsh_install.sh \
@@ -45,38 +51,34 @@ RUN git clone https://github.com/zsh-users/zsh-syntax-highlighting.git ${ZSH_CUS
 
 # set shell to zsh
 RUN cp /tmp/Linux-configs/.zshrc ~
-RUN chsh -s `which zsh`
+RUN sudo usermod -s /bin/zsh ubuntu
 
-# install pyenv and python3.7.4
+# install pyenv and python3.8.5
 RUN /tmp/pyenv_install.sh \
     && echo "\nexport PATH=\"\$HOME/.pyenv/bin:\$PATH\"\neval \"\$(pyenv init -)\"\neval \"\$(pyenv virtualenv-init -)\"" >> ~/.zshrc \
-    && v=3.7.4;wget http://npm.taobao.org/mirrors/python/$v/Python-$v.tar.xz -P ~/.pyenv/cache/ \
+    && v=3.8.5;wget http://npm.taobao.org/mirrors/python/$v/Python-$v.tar.xz -P ~/.pyenv/cache/ \
     && CONFIGURE_OPTS=--enable-shared ~/.pyenv/bin/pyenv install $v && ~/.pyenv/bin/pyenv global $v
 
 # pip resources
 RUN mkdir ~/.pip && cp /tmp/Linux-configs/pip.conf ~/.pip
 
-# install vim-plus
-RUN git clone https://github.com/wyg1997/vimplus.git ~/.vimplus && cd ~/.vimplus \
-    && echo "\nlet g:ycm_server_python_interpreter = '/root/.pyenv/versions/3.7.4/bin/python3.7'" >> .vimrc \
-    && ./install_root.sh \
-    && ~/.pyenv/versions/3.7.4/bin/python3 ~/.vim/plugged/YouCompleteMe/install.py
+# install neovimplus
+RUN git clone https://github.com/wyg1997/neovimplus ~/.neovimplus \
+     && cd ~/.neovimplus \
+     && ./install.sh
 
 # sshd
-RUN mkdir /var/run/sshd && echo 'root:123' | chpasswd
-RUN sed -i 's/PermitRootLogin without-password//' /etc/ssh/sshd_config
-RUN sed -i 's/PermitRootLogin no//' /etc/ssh/sshd_config
-RUN echo "PermitRootLogin yes" >> /etc/ssh/sshd_config
+RUN sudo mkdir -p /var/run/sshd
 # SSH login fix. Otherwise user is kicked off after login
-RUN sed 's@session\s*required\s*pam_loginuid.so@session optional pam_loginuid.so@g' -i /etc/pam.d/sshd
+RUN sudo sed 's@session\s*required\s*pam_loginuid.so@session optional pam_loginuid.so@g' -i /etc/pam.d/sshd
 ENV NOTVISIBLE "in users profile"
-RUN echo "export VISIBLE=now" >> /etc/profile
+RUN echo "export VISIBLE=now" | sudo tee -a /etc/profile 
 CMD ["/usr/sbin/sshd", "-D"]
 
 # remove temp files
-RUN rm -rf /tmp/* \
- && apt-get clean \
- && rm -rf /var/lib/apt/lists/*
+RUN sudo rm -rf /tmp/* \
+ && sudo apt-get clean \
+ && sudo rm -rf /var/lib/apt/lists/*
 
 # open port
 EXPOSE 22 8888 8887 8886
