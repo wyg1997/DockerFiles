@@ -30,9 +30,3 @@ docker build --network host -t cuda102:1.1 -f ./Dockerfile-cuda102 .
 ```sh
 docker run -it --shm-size=8G -P --cap-add=SYS_PTRACE --runtime=nvidia --name "NAME" -v PATH_LOCAL:PATH_DOCKER cuda102:1.1 /bin/zsh
 ```
-
-### TODO
-
-- 修改时间：`tzselect`选择地区，`cp /usr/share/zoneinfo/Asia/Shanghai /etc/localtime`使时间生效
-- 启动ssh服务
-

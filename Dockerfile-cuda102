@@ -5,6 +5,7 @@ FROM nvidia/cuda:${CUDA}-cudnn${CUDNN}-devel-ubuntu18.04
 
 # use tinghua resource to speed up
 COPY sources.list /etc/apt/
+
 # copy installer files
 COPY oh-my-zsh_install.sh /tmp/
 COPY pyenv_install.sh /tmp/
@@ -17,21 +18,27 @@ RUN apt-get update \
  && apt-get install -y sudo git zsh curl tmux wget build-essential libbz2-dev \
                        libssl-dev libreadline-dev libsqlite3-dev tk-dev \
                        libpng-dev libfreetype6-dev libffi-dev openssh-server \
-                       locales busybox software-properties-common \
- && apt-get clean \
- && rm -rf /var/lib/apt/lists/*
+                       locales busybox software-properties-common
 
 # create user
-RUN adduser --gecos '' --disabled-password ubuntu
-RUN echo "ubuntu ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers.d/nopasswd
-USER ubuntu
-WORKDIR /home/ubuntu
+ARG USERNAME=ubuntu
+ARG USER_UID=1000
+ARG USER_GID=$USER_UID
+RUN groupadd --gid $USER_GID $USERNAME \
+   && useradd -s /bin/bash --uid $USER_UID --gid $USER_GID -m $USERNAME \
+   && echo $USERNAME ALL=\(root\) NOPASSWD:ALL > /etc/sudoers.d/$USERNAME \
+   && chmod 0440 /etc/sudoers.d/$USERNAME
+RUN sudo chown -R ubuntu:ubuntu /tmp
 
 # set language
 RUN export LANGUAGE=en_US.UTF-8 && \
     export LANG=en_US.UTF-8 && \
     export LC_ALL=en_US.UTF-8 && \
     sudo locale-gen en_US.UTF-8
+
+# set time
+RUN ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
+RUN echo 'Asia/Shanghai' >/etc/timezone
 
 # download config files from git
 RUN cd /tmp && git clone https://github.com/wyg1997/Linux-configs.git
@@ -62,10 +69,7 @@ RUN /tmp/pyenv_install.sh \
 # pip resources
 RUN mkdir ~/.pip && cp /tmp/Linux-configs/pip.conf ~/.pip
 
-# install neovimplus
-RUN git clone https://github.com/wyg1997/neovimplus ~/.neovimplus \
-     && cd ~/.neovimplus \
-     && ./install.sh
+# TODO: install neovimplus
 
 # sshd
 RUN sudo mkdir -p /var/run/sshd
