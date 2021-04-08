@@ -28,7 +28,6 @@ RUN groupadd --gid $USER_GID $USERNAME \
    && useradd -s /bin/bash --uid $USER_UID --gid $USER_GID -m $USERNAME \
    && echo $USERNAME ALL=\(root\) NOPASSWD:ALL > /etc/sudoers.d/$USERNAME \
    && chmod 0440 /etc/sudoers.d/$USERNAME
-RUN sudo chown -R ubuntu:ubuntu /tmp
 
 # set language
 RUN export LANGUAGE=en_US.UTF-8 && \
@@ -39,6 +38,11 @@ RUN export LANGUAGE=en_US.UTF-8 && \
 # set time
 RUN ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
 RUN echo 'Asia/Shanghai' >/etc/timezone
+
+# set user
+USER ubuntu
+WORKDIR /home/ubuntu
+RUN sudo chown -R ubuntu:ubuntu /tmp
 
 # download config files from git
 RUN cd /tmp && git clone https://github.com/wyg1997/Linux-configs.git
