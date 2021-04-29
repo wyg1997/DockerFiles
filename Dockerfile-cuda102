@@ -54,7 +54,8 @@ RUN mkdir -p ~/.config && git clone https://github.com/tmux-plugins/tmux-resurre
 
 # install and set oh-my-zsh
 RUN cd ~ && /tmp/oh-my-zsh_install.sh \
-    && cp /tmp/Linux-configs/bullet-train.zsh-theme ~/.oh-my-zsh/themes/
+    && git clone --depth=1 https://gitee.com/romkatv/powerlevel10k.git ${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/themes/powerlevel10k
+    && cp /tmp/Linux-configs/.p10k.zsh ~
 # zsh-autosuggestions
 RUN git clone git://github.com/zsh-users/zsh-autosuggestions ~/.oh-my-zsh/plugins/zsh-autosuggestions
 # zsh-syntax-highlighting
