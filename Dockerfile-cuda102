@@ -17,8 +17,8 @@ ENV DEBIAN_FRONTEND=noninteractive
 RUN apt-get update \
  && apt-get install -y sudo git zsh curl tmux wget build-essential libbz2-dev \
                        libssl-dev libreadline-dev libsqlite3-dev tk-dev \
-                       libpng-dev libfreetype6-dev libffi-dev openssh-server \
-                       locales busybox software-properties-common
+                       libpng-dev libfreetype6-dev libffi-dev liblzma-dev \
+                       openssh-server locales busybox software-properties-common
 
 # create user
 ARG USERNAME=ubuntu
