@@ -5,7 +5,7 @@
 - [x] git
 - [x] tmux
 - [x] sshd
-- [x] neovimplus
+- [ ] neovimplus
 - [x] zsh & oh-my-zsh
   - [x] zsh-autosuggestions
   - [x] zsh-syntax-highlighting
