@@ -24,6 +24,7 @@ RUN apt-get update \
 ARG USERNAME=ubuntu
 ARG USER_UID=1000
 ARG USER_GID=$USER_UID
+RUN echo $USER_UID
 RUN groupadd --gid $USER_GID $USERNAME \
    && useradd -s /bin/bash --uid $USER_UID --gid $USER_GID -m $USERNAME \
    && echo $USERNAME ALL=\(root\) NOPASSWD:ALL > /etc/sudoers.d/$USERNAME \
@@ -54,7 +55,7 @@ RUN mkdir -p ~/.config && git clone https://github.com/tmux-plugins/tmux-resurre
 
 # install and set oh-my-zsh
 RUN cd ~ && /tmp/oh-my-zsh_install.sh \
-    && git clone --depth=1 https://gitee.com/romkatv/powerlevel10k.git ${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/themes/powerlevel10k
+    && git clone --depth=1 https://gitee.com/romkatv/powerlevel10k.git ${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/themes/powerlevel10k \
     && cp /tmp/Linux-configs/.p10k.zsh ~
 # zsh-autosuggestions
 RUN git clone git://github.com/zsh-users/zsh-autosuggestions ~/.oh-my-zsh/plugins/zsh-autosuggestions
@@ -67,7 +68,7 @@ RUN sudo usermod -s /bin/zsh ubuntu
 
 # install pyenv and python3.8.5
 RUN /tmp/pyenv_install.sh \
-    && echo "\nexport PATH=\"\$HOME/.pyenv/bin:\$PATH\"\neval \"\$(pyenv init -)\"\neval \"\$(pyenv virtualenv-init -)\"" >> ~/.zshrc \
+    && echo "\nexport PATH=\"\$HOME/.pyenv/shims:\$PATH\"\neval \"\$(pyenv init -)\"\neval \"\$(pyenv virtualenv-init -)\"" >> ~/.zshrc \
     && v=3.8.5;wget http://npm.taobao.org/mirrors/python/$v/Python-$v.tar.xz -P ~/.pyenv/cache/ \
     && CONFIGURE_OPTS=--enable-shared ~/.pyenv/bin/pyenv install $v && ~/.pyenv/bin/pyenv global $v
 
