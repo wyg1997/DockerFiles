@@ -6,7 +6,6 @@ FROM nvidia/cuda:${CUDA}-cudnn${CUDNN}-devel-ubuntu20.04
 # use tinghua resource to speed up
 COPY sources.list /etc/apt/
 RUN rm /etc/apt/sources.list.d/cuda.list
-RUN rm /etc/apt/sources.list.d/nvidia-ml.list
 
 # copy installer files
 COPY oh-my-zsh_install.sh /tmp/
