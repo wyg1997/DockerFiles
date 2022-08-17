@@ -17,6 +17,7 @@
 
 ```sh
 docker build --build-arg USER_UID=$(id -u) -t cuda102:1.1 -f ./Dockerfile-cuda102 .
+docker build --build-arg USER_UID=$(id -u) -t cuda112:1.0 -f ./Dockerfile-cuda112 .
 ```
 
 如果到`apt-get update`卡住，可能是网络问题，可以使用host模式构建:
