@@ -16,7 +16,7 @@
 ### Build
 
 ```sh
-docker build --build-arg USER_UID=$(id -u) -t cuda102:1.1 -f ./Dockerfile-cuda102 .
+docker build --build-arg USER_UID=$(id -u) -t cuda102:1.2 -f ./Dockerfile-cuda102 .
 docker build --build-arg USER_UID=$(id -u) -t cuda112:1.0 -f ./Dockerfile-cuda112 .
 ```
 
@@ -30,5 +30,5 @@ docker build --build-arg USER_UID=$(id -u) --network host -t cuda112:1.0 -f ./Do
 ### Run
 
 ```sh
-docker run -it --shm-size=8G -P --privileged --runtime=nvidia -u YOUR_UID --name "NAME" -v PATH_LOCAL:PATH_DOCKER cuda102:1.1 /bin/zsh
+docker run -it --shm-size=8G -P --privileged --runtime=nvidia -u YOUR_UID --name "NAME" -v PATH_LOCAL:PATH_DOCKER DOCKER_IMAGE /bin/zsh
 ```
