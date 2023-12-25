@@ -30,5 +30,5 @@ docker build --build-arg USER_UID=$(id -u) --network host -t cuda112:1.0 -f ./Do
 ### Run
 
 ```sh
-docker run -it --shm-size=8G -P --privileged --runtime=nvidia -u YOUR_UID --name "NAME" -v PATH_LOCAL:PATH_DOCKER DOCKER_IMAGE /bin/zsh
+docker run -it --shm-size=8G -P --privileged --runtime=nvidia -u $(id -u) --name "NAME" -v PATH_LOCAL:/home/ubuntu/PATH_DOCKER DOCKER_IMAGE /bin/zsh
 ```
