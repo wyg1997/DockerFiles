@@ -11,13 +11,14 @@
   - [x] zsh-syntax-highlighting
   - [x] z
   - [x] extractor
-- [x] pyenv & python3.8.5
+- [x] pyenv & python3.11
 
 ### Build
 
 ```sh
 docker build --build-arg USER_UID=$(id -u) -t cuda102:1.2 -f ./Dockerfile-cuda102 .
 docker build --build-arg USER_UID=$(id -u) -t cuda112:1.0 -f ./Dockerfile-cuda112 .
+docker build --build-arg USER_UID=$(id -u) -t cuda123:1.0 -f ./Dockerfile-cuda123 .
 ```
 
 如果到`apt-get update`卡住，可能是网络问题，可以使用host模式构建:
@@ -25,6 +26,7 @@ docker build --build-arg USER_UID=$(id -u) -t cuda112:1.0 -f ./Dockerfile-cuda11
 ```sh
 docker build --build-arg USER_UID=$(id -u) --network host -t cuda102:1.2 -f ./Dockerfile-cuda102 .
 docker build --build-arg USER_UID=$(id -u) --network host -t cuda112:1.0 -f ./Dockerfile-cuda112 .
+docker build --build-arg USER_UID=$(id -u) --network host -t cuda123:1.0 -f ./Dockerfile-cuda123 .
 ```
 
 ### Run
