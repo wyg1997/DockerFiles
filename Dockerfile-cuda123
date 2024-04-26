@@ -65,7 +65,7 @@ RUN sudo usermod -s /bin/zsh ubuntu
 # install pyenv and python3.11-dev
 RUN /tmp/pyenv_install.sh \
     && echo "\nexport PYENV_ROOT=\$HOME/.pyenv\nPATH=\"\$PYENV_ROOT/shims:\$PYENV_ROOT/bin:\$PATH\"\neval \"\$(pyenv init -)\"\neval \"\$(pyenv virtualenv-init -)\"" >> ~/.zshrc \
-    && v=3.11.7;wget http://npm.taobao.org/mirrors/python/$v/Python-$v.tar.xz -P ~/.pyenv/cache/ \
+    && v=3.11.7;wget https://npmmirror.com/mirrors/python/$v/Python-$v.tar.xz -P ~/.pyenv/cache/ \
     && CONFIGURE_OPTS=--enable-shared ~/.pyenv/bin/pyenv install $v && ~/.pyenv/bin/pyenv global $v
 
 # pip resources
