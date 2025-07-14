@@ -1,0 +1,106 @@
+########################
+FROM swr.cn-north-4.myhuaweicloud.com/ddn-k8s/docker.io/ubuntu:22.04-linuxarm64 AS base
+########################
+
+ARG PYTHON_VERSION=3.10
+ARG TARGETPLATFORM=arm64
+
+USER root
+SHELL ["/bin/bash", "-c"]
+
+RUN sed -i "s@ports.ubuntu.com@mirrors.huaweicloud.com@g" /etc/apt/sources.list
+# set time
+RUN ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
+RUN echo 'Asia/Shanghai' >/etc/timezone
+
+RUN export TZ=Asia/Shanghai && \
+    apt-get update && apt-get install -y --no-install-recommends \
+    gcc \
+    g++ \
+    curl \
+    git \
+    vim \
+    libsqlite3-dev \
+    build-essential \
+    ca-certificates \
+    libglib2.0-0 \
+    libgl1-mesa-glx \
+    dumb-init \
+    libnuma1 \
+    numactl \
+    pciutils \
+    kmod \
+    sudo zsh tmux wget libbz2-dev \
+    libssl-dev libreadline-dev tk-dev \
+    libpng-dev libfreetype6-dev libffi-dev liblzma-dev \
+    openssh-server locales busybox software-properties-common \
+    && rm -rf /var/lib/apt/lists/*
+
+# Set language
+RUN export LANGUAGE=en_US.UTF-8 && \
+    export LANG=en_US.UTF-8 && \
+    export LC_ALL=en_US.UTF-8 && \
+    locale-gen en_US.UTF-8
+
+# Install personal development tools
+# download config files from git
+RUN cd /tmp && git clone https://github.com/wyg1997/Linux-configs.git
+# tmux and tmux-resurrect
+RUN cp /tmp/Linux-configs/.tmux.conf ~
+RUN cp /tmp/Linux-configs/.tmux.conf.local ~
+RUN mkdir -p ~/.config && git clone https://github.com/tmux-plugins/tmux-resurrect ~/.config/tmux-resurrect
+# install and set oh-my-zsh
+COPY oh-my-zsh_install.sh /tmp/
+RUN cd ~ && /tmp/oh-my-zsh_install.sh \
+    && git clone --depth=1 https://gitee.com/romkatv/powerlevel10k.git ${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/themes/powerlevel10k \
+    && cp /tmp/Linux-configs/.p10k.zsh ~
+# zsh-autosuggestions
+RUN git clone https://github.com/zsh-users/zsh-autosuggestions ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-autosuggestions
+# zsh-syntax-highlighting
+RUN git clone https://github.com/zsh-users/zsh-syntax-highlighting.git ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-syntax-highlighting
+# set shell to zsh
+RUN cp /tmp/Linux-configs/.zshrc ~
+RUN usermod -s /bin/zsh root
+# pip resources
+RUN mkdir ~/.pip && cp /tmp/Linux-configs/pip.conf ~/.pip
+# sshd
+RUN mkdir -p /var/run/sshd
+# SSH login fix. Otherwise user is kicked off after login
+RUN sed 's@session\s*required\s*pam_loginuid.so@session optional pam_loginuid.so@g' -i /etc/pam.d/sshd
+ENV NOTVISIBLE "in users profile"
+RUN echo "export VISIBLE=now" | tee -a /etc/profile 
+CMD ["/usr/sbin/sshd", "-D"]
+
+# Install Miniconda
+ARG ARCH=aarch64
+RUN curl -fsSL -v -o ~/miniconda.sh -O "https://mirrors.tuna.tsinghua.edu.cn/anaconda/miniconda/Miniconda3-latest-Linux-${ARCH}.sh" && \
+    chmod +x ~/miniconda.sh && \
+    bash ~/miniconda.sh -b -p /opt/conda && \
+    rm ~/miniconda.sh && \
+    /opt/conda/bin/conda install -y python=${PYTHON_VERSION} cmake conda-build pyyaml numpy && \
+    /opt/conda/bin/conda clean -ya
+
+ARG USE_MIRRORS=true
+RUN if [ "$USE_MIRRORS" = "true" ]; then \
+        /opt/conda/bin/pip config set global.index-url https://pypi.tuna.tsinghua.edu.cn/simple; \
+    fi
+
+RUN /opt/conda/bin/pip install decorator scipy attrs psutil opentelemetry-distro opentelemetry-exporter-otlp ninja numpy==1.26.4 sympy && \
+    /opt/conda/bin/opentelemetry-bootstrap -a install && \
+    /opt/conda/bin/conda clean -ya
+
+# Add ascend env file
+RUN sed -i '1s/^/source \/usr\/local\/Ascend\/ascend-toolkit\/set_env.sh 2>\/dev\/null || true\n/' ~/.zshrc && \
+    sed -i '2i\\source \/usr\/local\/Ascend\/nnal\/atb\/set_env.sh 2>\/dev\/null || true\n' ~/.zshrc && \
+    sed -i '3i\\source \/usr\/local\/Ascend\/ascend-toolkit\/latest\/opp\/vendors\/crossing_npu\/bin\/set_env.bash 2>\/dev\/null || true\n' ~/.zshrc
+
+# remove temp files
+RUN rm -rf /tmp/* \
+ && apt-get clean \
+ && rm -rf /var/lib/apt/lists/*
+
+ENV PATH /opt/conda/bin:$PATH
+ENV LD_LIBRARY_PATH /usr/local/Ascend/driver/lib64:/usr/local/Ascend/driver/lib64/common:/usr/local/Ascend/driver/lib64/driver
+EXPOSE 22 8000 8080 8081 8082 8083 8084 8085 8086 8087 8088 8089 8090
+WORKDIR /root
+
